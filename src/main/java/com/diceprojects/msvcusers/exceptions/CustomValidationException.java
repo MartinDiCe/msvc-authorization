@@ -1,4 +1,4 @@
-package com.diceprojects.calculationsservice.exceptions;
+package com.diceprojects.msvcusers.exceptions;
 
 /**
  * CustomValidationException is a custom runtime exception class that extends RuntimeException.
