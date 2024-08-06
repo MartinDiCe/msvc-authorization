@@ -10,6 +10,7 @@ public class AuthWhitelist {
      */
     public static final String[] AUTH_WHITELIST = {
             "/swagger-ui.html",
+            "/apidoc/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",
