@@ -1,7 +1,6 @@
 package com.diceprojects.msvcusers.security;
 
 import com.diceprojects.msvcusers.exceptions.ErrorHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -30,8 +29,7 @@ public class SecurityConfig {
     private final ReactiveUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
-    @Autowired
-    public SecurityConfig(@Lazy ReactiveUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public SecurityConfig(@Lazy ReactiveUserDetailsService userDetailsService, @Lazy JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
     }

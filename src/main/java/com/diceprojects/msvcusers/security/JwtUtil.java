@@ -4,6 +4,7 @@ import com.diceprojects.msvcusers.exceptions.ErrorHandler;
 import com.diceprojects.msvcusers.persistences.models.entities.Parameter;
 import com.diceprojects.msvcusers.persistences.repositories.ParameterRepository;
 import com.diceprojects.msvcusers.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -28,20 +30,19 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil implements ApplicationListener<ContextRefreshedEvent> {
 
-    @Value("${jwt.secret:#{null}}")
-    private String jwtSecret;
-
-    @Value("${jwt.expirationMs}")
-    private int jwtExpirationMs;
-
     private final ParameterRepository parameterRepository;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
+
 
     private Key key;
+    private String jwtSecret;
+    private int jwtExpirationMs;
 
-    public JwtUtil(@Lazy ParameterRepository parameterRepository, @Lazy UserService userService) {
+    public JwtUtil(@Lazy ParameterRepository parameterRepository, @Lazy UserService userService, ObjectMapper objectMapper) {
         this.parameterRepository = parameterRepository;
         this.userService = userService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -53,20 +54,38 @@ public class JwtUtil implements ApplicationListener<ContextRefreshedEvent> {
     public void onApplicationEvent(ContextRefreshedEvent event) {
         parameterRepository.findByParameterName("jwtSecretKey")
                 .flatMap(parameter -> {
-                    this.jwtSecret = parameter.getValue();
-                    this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-                    return Mono.just(parameter);
+                    try {
+                        Map<String, String> values = objectMapper.readValue(parameter.getValue(), Map.class);
+                        this.jwtSecret = values.get("keyApplication");
+                        this.jwtExpirationMs = Integer.parseInt(values.get("timeExpire"));
+                        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+                        return Mono.just(parameter);
+                    } catch (Exception e) {
+                        return Mono.error(new RuntimeException("Error al leer los valores del parámetro", e));
+                    }
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
                     this.jwtSecret = Base64.getEncoder().encodeToString(key.getEncoded());
+                    this.jwtExpirationMs = 3600000; // Tiempo de expiración por defecto si no se configura
+
+                    Map<String, String> values = Map.of(
+                            "keyApplication", this.jwtSecret,
+                            "timeExpire", String.valueOf(this.jwtExpirationMs)
+                    );
+
                     Parameter parameter = new Parameter();
                     parameter.setParameterName("jwtSecretKey");
-                    parameter.setValue(this.jwtSecret);
-                    parameter.setDescription("JWT secret key for signing tokens");
+                    try {
+                        parameter.setValue(objectMapper.writeValueAsString(values));
+                    } catch (Exception e) {
+                        return Mono.error(new RuntimeException("Error al escribir los valores del parámetro", e));
+                    }
+                    parameter.setDescription("JWT secret key and expiration time for signing tokens");
+
                     return parameterRepository.save(parameter);
                 }))
-                .doOnNext(parameter -> System.out.println("Clave secreta JWT inicializada exitosamente"))
+                .doOnNext(parameter -> System.out.println("Clave secreta JWT y tiempo de expiración inicializados exitosamente"))
                 .doOnError(e -> ErrorHandler.handleError("Error inicializando la clave secreta JWT", e, HttpStatus.INTERNAL_SERVER_ERROR))
                 .subscribe();
     }
