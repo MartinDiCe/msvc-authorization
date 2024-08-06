@@ -1,36 +1,32 @@
 package com.diceprojects.msvcusers.exceptions;
 
 /**
- * CustomValidationException is a custom runtime exception class that extends RuntimeException.
- * It is specifically used to represent validation failures within the application, providing
- * a clear indication that an error occurred due to invalid data or state.
+ * CustomValidationException es una clase de excepción personalizada que extiende RuntimeException.
+ * Se utiliza específicamente para representar fallos de validación dentro de la aplicación,
+ * proporcionando una indicación clara de que ocurrió un error debido a datos o estado inválidos.
  */
 public class CustomValidationException extends RuntimeException {
 
     /**
-     * Constructs a new CustomValidationException with the specified detail message.
-     * The detail message is used to provide a specific reason for the validation failure.
+     * Construye una nueva CustomValidationException con el mensaje de detalle especificado.
+     * El mensaje de detalle se utiliza para proporcionar una razón específica para el fallo de validación.
      *
-     * @param message the detail message which provides specific information about the
-     *                validation failure. The detail message is saved for later retrieval
-     *                by the Throwable.getMessage() method.
+     * @param message el mensaje de detalle que proporciona información específica sobre el fallo de validación.
+     *                El mensaje de detalle se guarda para su posterior recuperación mediante el método Throwable.getMessage().
      */
     public CustomValidationException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new CustomValidationException with the specified detail message and cause.
-     * This constructor is useful for validation exceptions that are the result of another
-     * underlying issue.
+     * Construye una nueva CustomValidationException con el mensaje de detalle y la causa especificados.
+     * Este constructor es útil para excepciones de validación que son el resultado de otro problema subyacente.
      *
-     * @param message the detail message which provides specific information about the
-     *                validation failure. The detail message is saved for later retrieval
-     *                by the Throwable.getMessage() method.
-     * @param cause   the cause of the exception, which represents the underlying reason
-     *                for the validation failure (saved for later retrieval by the
-     *                Throwable.getCause() method). A null value is permitted and indicates
-     *                that the cause is nonexistent or unknown.
+     * @param message el mensaje de detalle que proporciona información específica sobre el fallo de validación.
+     *                El mensaje de detalle se guarda para su posterior recuperación mediante el método Throwable.getMessage().
+     * @param cause   la causa de la excepción, que representa la razón subyacente del fallo de validación
+     *                (guardada para su posterior recuperación mediante el método Throwable.getCause()).
+     *                Se permite un valor nulo y indica que la causa es inexistente o desconocida.
      */
     public CustomValidationException(String message, Throwable cause) {
         super(message, cause);

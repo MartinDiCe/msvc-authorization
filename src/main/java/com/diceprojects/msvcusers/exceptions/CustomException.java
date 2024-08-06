@@ -1,36 +1,35 @@
 package com.diceprojects.msvcusers.exceptions;
 
 /**
- * CustomException is a custom runtime exception class that extends RuntimeException.
- * It is used throughout the application to represent exceptions that occur due to
- * specific business logic or operational failures, providing more context than a
- * standard runtime exception.
+ * CustomException es una clase de excepción personalizada que extiende RuntimeException.
+ * Se utiliza en toda la aplicación para representar excepciones que ocurren debido a
+ * lógica de negocio específica o fallos operacionales, proporcionando más contexto que
+ * una excepción de tiempo de ejecución estándar.
  */
 public class CustomException extends RuntimeException {
 
     /**
-     * Constructs a new CustomException with the specified detail message.
-     * The detail message is saved for later retrieval by the Throwable.getMessage() method.
+     * Construye una nueva CustomException con el mensaje de detalle especificado.
+     * El mensaje de detalle se guarda para su posterior recuperación mediante el método Throwable.getMessage().
      *
-     * @param message the detail message. The detail message is saved for later retrieval
-     *                by the Throwable.getMessage() method.
+     * @param message el mensaje de detalle. El mensaje de detalle se guarda para su posterior
+     *                recuperación mediante el método Throwable.getMessage().
      */
     public CustomException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new CustomException with the specified detail message and cause.
-     * Note that the detail message associated with cause is not automatically incorporated
-     * into this exception's detail message.
+     * Construye una nueva CustomException con el mensaje de detalle y la causa especificados.
+     * Note que el mensaje de detalle asociado con la causa no se incorpora automáticamente
+     * en el mensaje de detalle de esta excepción.
      *
-     * @param message the detail message. The detail message is saved for later retrieval
-     *                by the Throwable.getMessage() method.
-     * @param cause   the cause (which is saved for later retrieval by the Throwable.getCause() method).
-     *                (A null value is permitted, and indicates that the cause is nonexistent or unknown.)
+     * @param message el mensaje de detalle. El mensaje de detalle se guarda para su posterior
+     *                recuperación mediante el método Throwable.getMessage().
+     * @param cause   la causa (que se guarda para su posterior recuperación mediante el método Throwable.getCause()).
+     *                (Se permite un valor nulo, lo que indica que la causa es inexistente o desconocida).
      */
     public CustomException(String message, Throwable cause) {
         super(message, cause);
     }
 }
-
