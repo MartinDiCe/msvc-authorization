@@ -23,7 +23,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("API Documentation")
                         .version("v0.0.1")
-                        .description("Documentation msvc-calculations")
+                        .description("Documentation msvc-users")
                         .termsOfService("https://diceprojects.com/termOfService")
                         .license(new License().name("diceLicense").url("https://diceprojects/api/license")));
     }

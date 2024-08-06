@@ -1,9 +1,11 @@
 package com.diceprojects.msvcusers.security;
 
+import com.diceprojects.msvcusers.exceptions.ErrorHandler;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import reactor.core.publisher.Mono;
 
 /**
@@ -23,10 +25,14 @@ public class ServerHttpBearerAuthenticationConverter implements ServerAuthentica
      */
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
-        return Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("Authorization"))
-                .filter(authHeader -> authHeader.startsWith("Bearer "))
-                .map(authHeader -> authHeader.substring(7))
-                .map(authToken -> new UsernamePasswordAuthenticationToken(authToken, authToken));
+        try {
+            return Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("Authorization"))
+                    .filter(authHeader -> authHeader.startsWith("Bearer "))
+                    .map(authHeader -> authHeader.substring(7))
+                    .map(authToken -> new UsernamePasswordAuthenticationToken(authToken, authToken));
+        } catch (Exception e) {
+            ErrorHandler.handleError("Error converting Bearer token", e, HttpStatus.UNAUTHORIZED);
+            return Mono.empty();
+        }
     }
 }
-

@@ -1,68 +1,105 @@
 package com.diceprojects.msvcusers.security;
 
+import com.diceprojects.msvcusers.exceptions.ErrorHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+
+import static com.diceprojects.msvcusers.utils.AuthWhitelist.AUTH_WHITELIST;
 
 /**
- * Configuración de seguridad de Spring Security para la aplicación WebFlux.
- * Habilita la seguridad web reactiva y configura un filtro personalizado para JWT.
+ * Configuración de seguridad para la aplicación.
  */
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
     private final ReactiveUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
-    /**
-     * Constructor que inyecta el servicio de detalles del usuario.
-     *
-     * @param userDetailsService Servicio que carga los datos del usuario por nombre de usuario.
-     */
-    public SecurityConfig(ReactiveUserDetailsService userDetailsService) {
+    @Autowired
+    public SecurityConfig(@Lazy ReactiveUserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
-     * Define la cadena de filtros de seguridad para configurar las reglas de autorización.
+     * Configura la cadena de filtros de seguridad web.
      *
-     * @param http Configuración de seguridad HTTP.
-     * @return La cadena de filtros de seguridad configurada.
-     * @throws Exception Si ocurre un error durante la configuración.
+     * @param http el objeto ServerHttpSecurity para configurar la seguridad web
+     * @return la cadena de filtros de seguridad web configurada
      */
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
-        http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/public/**").permitAll() // Permite el acceso no autenticado a rutas públicas.
-                        .anyExchange().authenticated()          // Requiere autenticación para todas las demás rutas.
-                )
-                .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION) // Agrega el filtro personalizado de JWT.
-                .csrf(csrf -> csrf.disable()); // Deshabilita CSRF para API REST.
-
-        return http.build();
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        try {
+            return http
+                    .authorizeExchange(exchanges -> exchanges
+                            .pathMatchers(AUTH_WHITELIST).permitAll()
+                            .anyExchange().authenticated()
+                    )
+                    .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                    .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                    .build();
+        } catch (Exception e) {
+            ErrorHandler.handleError("Error configuring SecurityWebFilterChain", e, HttpStatus.INTERNAL_SERVER_ERROR);
+            return null;
+        }
     }
 
     /**
-     * Crea un filtro de autenticación que usa JWT para la gestión de sesiones.
+     * Crea y configura el filtro de autenticación JWT.
      *
-     * @return El filtro de autenticación personalizado.
+     * @return el filtro de autenticación JWT configurado
      */
-    private AuthenticationWebFilter jwtAuthenticationFilter() {
-        ReactiveAuthenticationManager authManager = authentication -> userDetailsService.findByUsername(authentication.getName())
-                .map(userDetails -> new UsernamePasswordAuthenticationToken(
-                        userDetails, userDetails.getPassword(), userDetails.getAuthorities()));
-
-        AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(authManager);
-        authenticationWebFilter.setServerAuthenticationConverter(new ServerHttpBearerAuthenticationConverter());
+    @Bean
+    public AuthenticationWebFilter jwtAuthenticationFilter() {
+        AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(reactiveAuthenticationManager());
+        authenticationWebFilter.setServerAuthenticationConverter(jwtServerAuthenticationConverter());
         return authenticationWebFilter;
     }
-}
 
+    /**
+     * Crea y configura el gestor de autenticación reactivo.
+     *
+     * @return el gestor de autenticación reactivo configurado
+     */
+    @Bean
+    public ReactiveAuthenticationManager reactiveAuthenticationManager() {
+        UserDetailsRepositoryReactiveAuthenticationManager authManager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+        authManager.setPasswordEncoder(passwordEncoder());
+        return authManager;
+    }
+
+    /**
+     * Crea y configura el convertidor de autenticación JWT.
+     *
+     * @return el convertidor de autenticación JWT configurado
+     */
+    @Bean
+    public ServerAuthenticationConverter jwtServerAuthenticationConverter() {
+        return new JwtServerAuthenticationConverter(jwtUtil);
+    }
+
+    /**
+     * Crea y configura el codificador de contraseñas.
+     *
+     * @return el codificador de contraseñas configurado
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

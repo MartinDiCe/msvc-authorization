@@ -5,24 +5,19 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-
 /**
- * Entidad que representa un rol en el sistema.
+ * Entidad que representa un parámetro de configuración en el sistema.
  */
-@Document(collection = "roles")
+@Document(collection = "parameters")
 @Data
-public class Role {
+public class Parameter {
 
     @Id
     private String id;
 
     @Indexed(unique = true)
-    private String role;
+    private String parameterName;
 
+    private String value;
     private String description;
-    private boolean deleted = false;
-    private Date deleteDate;
-    private Date createDate;
-    private Date updateDate;
 }
