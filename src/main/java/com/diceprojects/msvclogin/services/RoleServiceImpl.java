@@ -1,7 +1,9 @@
 package com.diceprojects.msvclogin.services;
 
 import com.diceprojects.msvclogin.exceptions.ErrorHandler;
+import com.diceprojects.msvclogin.exceptions.RoleStatusException;
 import com.diceprojects.msvclogin.persistences.models.entities.Role;
+import com.diceprojects.msvclogin.persistences.models.enums.EntityStatus;
 import com.diceprojects.msvclogin.persistences.repositories.RoleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,9 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.management.relation.RoleNotFoundException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -65,8 +70,9 @@ public class RoleServiceImpl implements RoleService {
         Role role = new Role();
         role.setRole(roleName);
         role.setDescription(description);
-        role.setCreateDate(new Date());
+        role.setCreateDate(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime());
         role.setDeleted(false);
+        role.setStatus(EntityStatus.Active);
         return roleRepository.save(role)
                 .doOnError(e -> ErrorHandler.handleError("Error creando el rol", e, HttpStatus.INTERNAL_SERVER_ERROR));
     }
@@ -83,4 +89,60 @@ public class RoleServiceImpl implements RoleService {
                 .switchIfEmpty(Flux.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Roles no encontrados")))
                 .doOnError(e -> ErrorHandler.handleError("Error encontrando roles por IDs", e, HttpStatus.INTERNAL_SERVER_ERROR));
     }
+
+    /**
+     * Actualiza un rol existente.
+     *
+     * @param roleId el ID del rol a actualizar
+     * @param roleName el nuevo nombre del rol
+     * @param description la nueva descripción del rol
+     * @return un Mono que emite el rol actualizado
+     */
+    @Override
+    public Mono<Role> updateRole(String roleId, String roleName, String description) {
+        return roleRepository.findById(roleId)
+                .flatMap(existingRole -> {
+                    existingRole.setRole(roleName);
+                    existingRole.setDescription(description);
+                    existingRole.setUpdateDate(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime());
+                    return roleRepository.save(existingRole);
+                })
+                .switchIfEmpty(Mono.error(new RoleNotFoundException("Role not found with id " + roleId)))
+                .doOnError(e -> ErrorHandler.handleError("Error actualizando el rol", e, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    /**
+     * Cambia el estado de un rol.
+     *
+     * @param roleId el ID del rol a actualizar
+     * @param status el nuevo estado del rol (activo/inactivo)
+     * @return un Mono que emite el rol actualizado o un mensaje si el estado ya es el mismo
+     */
+    @Override
+    public Mono<Object> changeRoleStatus(String roleId, EntityStatus status) {
+        return roleRepository.findById(roleId)
+                .flatMap(existingRole -> {
+                    if (existingRole.getStatus() == status) {
+                        return Mono.just("El estado actual ya es " + status);
+                    }
+                    existingRole.setStatus(status);
+                    existingRole.setUpdateDate(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime());
+                    existingRole.setStatus(status);
+                    return roleRepository.save(existingRole).cast(Object.class);
+                })
+                .switchIfEmpty(Mono.error(new RoleNotFoundException("Role not found with id " + roleId)))
+                .doOnError(e -> ErrorHandler.handleError("Error cambiando el estado del rol", e, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    /**
+     * Lista todos los roles.
+     *
+     * @return un Flux que emite todos los roles
+     */
+    @Override
+    public Flux<Role> listRoles() {
+        return roleRepository.findAll()
+                .doOnError(e -> ErrorHandler.handleError("Error listando los roles", e, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
 }

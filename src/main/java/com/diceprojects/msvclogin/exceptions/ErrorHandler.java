@@ -23,4 +23,19 @@ public class ErrorHandler {
         logger.error(message, e);
         throw new ResponseStatusException(status, message, e);
     }
+
+    /**
+     * Excepción personalizada que se lanza cuando un rol no se encuentra.
+     */
+    public static class RoleNotFoundException extends RuntimeException {
+        /**
+         * Crea una nueva instancia de {@code RoleNotFoundException} con el mensaje especificado.
+         *
+         * @param message el mensaje detallado de la excepción
+         */
+        public RoleNotFoundException(String message) {
+            super(message);
+        }
+    }
 }
+
