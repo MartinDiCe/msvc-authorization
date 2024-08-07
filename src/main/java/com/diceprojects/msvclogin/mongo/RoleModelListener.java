@@ -5,6 +5,8 @@ import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventLis
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
@@ -24,7 +26,7 @@ public class RoleModelListener extends AbstractMongoEventListener<Role> {
     public void onBeforeConvert(BeforeConvertEvent<Role> event) {
         Role role = event.getSource();
         if (role.getCreateDate() == null) {
-            role.setCreateDate(new Date());
+            role.setCreateDate(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime());
         }
     }
 }

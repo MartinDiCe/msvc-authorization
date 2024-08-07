@@ -1,16 +1,21 @@
 package com.diceprojects.msvclogin.controllers;
 
+import com.diceprojects.msvclogin.exceptions.ErrorHandler;
+import com.diceprojects.msvclogin.exceptions.RoleStatusException;
 import com.diceprojects.msvclogin.persistences.models.entities.Role;
+import com.diceprojects.msvclogin.persistences.models.enums.EntityStatus;
 import com.diceprojects.msvclogin.services.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
  * Controlador para manejar las solicitudes relacionadas con los roles.
  */
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("/api/role")
 public class RoleController {
 
     private final RoleService roleService;
@@ -25,7 +30,7 @@ public class RoleController {
      * @param roleName el nombre del rol a buscar
      * @return un {@link Mono} que emite el rol encontrado
      */
-    @GetMapping("/{roleName}")
+    @GetMapping("/getRoleByName/{roleName}")
     public Mono<Role> getRoleByName(@PathVariable String roleName) {
         return roleService.findByRoleName(roleName);
     }
@@ -37,9 +42,45 @@ public class RoleController {
      * @param description la descripción del rol (opcional)
      * @return un {@link Mono} que emite el rol creado
      */
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Role> create(@RequestParam String roleName, @RequestParam(required = false, defaultValue = "") String description) {
         return roleService.createRole(roleName, description);
     }
+
+    /**
+     * Actualiza un rol existente.
+     *
+     * @param roleId el ID del rol a actualizar
+     * @param roleName el nuevo nombre del rol
+     * @param description la nueva descripción del rol, opcional
+     * @return un Mono que emite el rol actualizado
+     */
+    @PutMapping("/update/{roleId}")
+    public Mono<Role> update(@PathVariable String roleId, @RequestParam String roleName, @RequestParam(required = false, defaultValue = "") String description) {
+        return roleService.updateRole(roleId, roleName, description);
+    }
+
+    /**
+     * Cambia el estado de un rol.
+     *
+     * @param roleId el ID del rol a actualizar
+     * @param status el nuevo estado del rol (activo/inactivo)
+     * @return un Mono que emite el rol actualizado o un mensaje si el estado ya es el mismo
+     */
+    @PutMapping("/changeStatus/{roleId}")
+    public Mono<Object> changeStatus(@PathVariable String roleId, @RequestParam EntityStatus status) {
+        return roleService.changeRoleStatus(roleId, status);
+    }
+
+    /**
+     * Lista todos los roles.
+     *
+     * @return un Flux que emite todos los roles
+     */
+    @GetMapping("/listRoles")
+    public Flux<Role> listRoles() {
+        return roleService.listRoles();
+    }
+
 }

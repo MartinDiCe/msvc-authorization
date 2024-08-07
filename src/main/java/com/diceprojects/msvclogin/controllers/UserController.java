@@ -13,7 +13,7 @@ import java.util.Set;
  * Controlador para manejar las solicitudes relacionadas con los usuarios.
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
