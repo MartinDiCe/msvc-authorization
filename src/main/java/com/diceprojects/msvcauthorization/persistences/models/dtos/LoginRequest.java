@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.persistences.models.dto;
+package com.diceprojects.msvcauthorization.persistences.models.dtos;
 
 import lombok.Data;
 

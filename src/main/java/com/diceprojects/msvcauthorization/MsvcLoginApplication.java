@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin;
+package com.diceprojects.msvcauthorization;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

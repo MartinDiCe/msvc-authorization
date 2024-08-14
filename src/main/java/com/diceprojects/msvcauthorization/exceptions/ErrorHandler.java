@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.exceptions;
+package com.diceprojects.msvcauthorization.exceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

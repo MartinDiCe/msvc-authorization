@@ -1,6 +1,5 @@
-package com.diceprojects.msvclogin.persistences.models.entities;
+package com.diceprojects.msvcauthorization.persistences.models.entities;
 
-import com.diceprojects.msvclogin.persistences.models.enums.EntityStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
@@ -25,10 +24,9 @@ public class Role {
 
     @Indexed(unique = true)
     private String role;
-
     private String description;
     private boolean deleted = false;
-    private EntityStatus status;
+    private String status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime deleteDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

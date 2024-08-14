@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.mongo;
+package com.diceprojects.msvcauthorization.mongo;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
  * Esto incluye la detección automática de interfaces de repositorio en el paquete especificado.
  */
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "com.diceprojects.msvclogin.persistences.repositories")
+@EnableReactiveMongoRepositories(basePackages = "com.diceprojects.msvcauthorization.persistences.repositories")
 public class MongoConfig {
 
 }

@@ -1,9 +1,9 @@
-package com.diceprojects.msvclogin.controllers;
+package com.diceprojects.msvcauthorization.controllers;
 
-import com.diceprojects.msvclogin.persistences.models.entities.Role;
-import com.diceprojects.msvclogin.services.UserService;
+import com.diceprojects.msvcauthorization.persistences.models.dtos.CustomUserDetailsDTO;
+import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
+import com.diceprojects.msvcauthorization.services.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +29,7 @@ public class UserController {
      * @return un {@link Mono} que emite los detalles del usuario encontrado
      */
     @GetMapping("/{username}")
-    public Mono<UserDetails> getUserByUsername(@PathVariable String username) {
+    public Mono<CustomUserDetailsDTO> getUserByUsername(@PathVariable String username) {
         return userService.findByUsername(username);
     }
 
@@ -43,7 +43,31 @@ public class UserController {
      */
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<UserDetails> createUser(@RequestParam String username, @RequestParam String password, @RequestParam Set<Role> roles) {
+    public Mono<CustomUserDetailsDTO> createUser(@RequestParam String username, @RequestParam String password, @RequestParam Set<Role> roles) {
         return userService.createUser(username, password, roles);
     }
+
+    /**
+     * Actualiza el token de seguridad de un usuario.
+     *
+     * @param userId el ID del usuario.
+     * @param token el nuevo token de seguridad.
+     * @return un {@link Mono} que emite los detalles del usuario actualizado.
+     */
+    @PutMapping("/updateToken/{userId}")
+    public Mono<CustomUserDetailsDTO> updateUserToken(@PathVariable String userId, @RequestParam String token) {
+        return userService.updateUserToken(userId, token);
+    }
+
+    /**
+     * Obtiene los detalles de un usuario por su ID.
+     *
+     * @param userId el ID del usuario a buscar.
+     * @return un {@link Mono} que emite los detalles del usuario encontrado.
+     */
+    @GetMapping("/findById/{userId}")
+    public Mono<CustomUserDetailsDTO> getUserById(@PathVariable String userId) {
+        return userService.findById(userId);
+    }
+
 }

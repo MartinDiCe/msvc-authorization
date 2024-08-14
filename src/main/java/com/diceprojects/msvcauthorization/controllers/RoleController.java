@@ -1,13 +1,9 @@
-package com.diceprojects.msvclogin.controllers;
+package com.diceprojects.msvcauthorization.controllers;
 
-import com.diceprojects.msvclogin.exceptions.ErrorHandler;
-import com.diceprojects.msvclogin.exceptions.RoleStatusException;
-import com.diceprojects.msvclogin.persistences.models.entities.Role;
-import com.diceprojects.msvclogin.persistences.models.enums.EntityStatus;
-import com.diceprojects.msvclogin.services.RoleService;
+import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
+import com.diceprojects.msvcauthorization.services.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -69,7 +65,7 @@ public class RoleController {
      * @return un Mono que emite el rol actualizado o un mensaje si el estado ya es el mismo
      */
     @PutMapping("/changeStatus/{roleId}")
-    public Mono<Object> changeStatus(@PathVariable String roleId, @RequestParam EntityStatus status) {
+    public Mono<Object> changeStatus(@PathVariable String roleId, @RequestParam String status) {
         return roleService.changeRoleStatus(roleId, status);
     }
 

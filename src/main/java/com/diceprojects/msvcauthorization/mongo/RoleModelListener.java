@@ -1,13 +1,12 @@
-package com.diceprojects.msvclogin.mongo;
+package com.diceprojects.msvcauthorization.mongo;
 
-import com.diceprojects.msvclogin.persistences.models.entities.Role;
+import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 /**
  * Listener para eventos de la entidad Role en MongoDB.

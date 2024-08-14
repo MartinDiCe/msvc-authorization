@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.config;
+package com.diceprojects.msvcauthorization.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.EnableWebFlux;

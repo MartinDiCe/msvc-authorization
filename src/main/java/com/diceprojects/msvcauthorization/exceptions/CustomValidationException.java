@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.exceptions;
+package com.diceprojects.msvcauthorization.exceptions;
 
 /**
  * CustomValidationException es una clase de excepción personalizada que extiende RuntimeException.

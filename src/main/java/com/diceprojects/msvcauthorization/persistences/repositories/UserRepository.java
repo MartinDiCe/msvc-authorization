@@ -1,6 +1,6 @@
-package com.diceprojects.msvclogin.persistences.repositories;
+package com.diceprojects.msvcauthorization.persistences.repositories;
 
-import com.diceprojects.msvclogin.persistences.models.entities.User;
+import com.diceprojects.msvcauthorization.persistences.models.entities.User;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 
@@ -20,4 +20,6 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
      * @return Un {@link Mono} que, al ser suscrito, proporciona el usuario encontrado o un {@link Mono#empty()} si no se encuentra ninguno.
      */
     Mono<User> findByUsername(String username);
+    Mono<User> findByUsernameIgnoreCase(String username);
+
 }

@@ -1,7 +1,6 @@
-package com.diceprojects.msvclogin.services;
+package com.diceprojects.msvcauthorization.services;
 
-import com.diceprojects.msvclogin.persistences.models.entities.Role;
-import com.diceprojects.msvclogin.persistences.models.enums.EntityStatus;
+import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -62,7 +61,7 @@ public interface RoleService {
      * @param status el nuevo estado del rol (activo/inactivo)
      * @return un Mono que emite el rol actualizado
      */
-    Mono<Object> changeRoleStatus(String roleId, EntityStatus status);
+    Mono<Object> changeRoleStatus(String roleId, String status);
 
     /**
      * Lista todos los roles.

@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.exceptions;
+package com.diceprojects.msvcauthorization.exceptions;
 
 /**
  * Excepción personalizada que se lanza cuando se intenta cambiar el estado de un rol

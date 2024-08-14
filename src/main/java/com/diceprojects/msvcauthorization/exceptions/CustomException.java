@@ -1,4 +1,4 @@
-package com.diceprojects.msvclogin.exceptions;
+package com.diceprojects.msvcauthorization.exceptions;
 
 /**
  * CustomException es una clase de excepción personalizada que extiende RuntimeException.

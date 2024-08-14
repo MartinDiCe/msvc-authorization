@@ -1,12 +1,12 @@
-package com.diceprojects.msvclogin.initialization;
+package com.diceprojects.msvcauthorization.initialization;
 
-import com.diceprojects.msvclogin.exceptions.ErrorHandler;
-import com.diceprojects.msvclogin.persistences.models.entities.Role;
-import com.diceprojects.msvclogin.services.RoleService;
-import com.diceprojects.msvclogin.services.UserService;
+import com.diceprojects.msvcauthorization.exceptions.ErrorHandler;
+import com.diceprojects.msvcauthorization.persistences.models.dtos.CustomUserDetailsDTO;
+import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
+import com.diceprojects.msvcauthorization.services.RoleService;
+import com.diceprojects.msvcauthorization.services.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
      * @param roleName the role name to assign to the new user
      * @return a Mono emitting the created or found user details, or an error if creation fails
      */
-    private Mono<UserDetails> createUserIfNotFound(String username, String password, String roleName) {
+    private Mono<CustomUserDetailsDTO> createUserIfNotFound(String username, String password, String roleName) {
         return userService.findOrCreateUser(username, password, roleName)
                 .doOnNext(userDetails -> System.out.println("User default created or found: " + userDetails.getUsername()))
                 .doOnError(e -> ErrorHandler.handleError("Error creating user default", e, HttpStatus.INTERNAL_SERVER_ERROR));
