@@ -1,6 +1,6 @@
 package com.diceprojects.msvcauthorization.clients;
 
-import com.diceprojects.msvcauthorization.persistences.models.dtos.UserDetailsDTO;
+import com.diceprojects.msvcauthorization.persistences.models.dtos.CustomUserDetailsDTO;
 import io.netty.handler.logging.LogLevel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -40,26 +40,12 @@ public class AuthenticationClient {
      * @param username el nombre de usuario.
      * @return un {@link Mono} que emite los detalles del usuario encontrado.
      */
-    public Mono<UserDetailsDTO> getUserByUsername(String username) {
+    public Mono<CustomUserDetailsDTO> getUserByUsername(String username) {
         return webClient.get()
                 .uri("/api/user/{username}", username)
                 .retrieve()
-                .bodyToMono(UserDetailsDTO.class)
+                .bodyToMono(CustomUserDetailsDTO.class)
                 .onErrorResume(e -> Mono.error(new RuntimeException("Error al recuperar los detalles del usuario", e)));
     }
 
-    /**
-     * Valida un token de usuario en el microservicio de msvc-authentication.
-     *
-     * @param token el token JWT del usuario.
-     * @return un {@link Mono} que emite los detalles del usuario si el token es válido.
-     */
-    public Mono<UserDetailsDTO> validateToken(String token) {
-        return webClient.get()
-                .uri("/api/auth/validate")
-                .header("Authorization", token)
-                .retrieve()
-                .bodyToMono(UserDetailsDTO.class)
-                .onErrorResume(e -> Mono.error(new RuntimeException("Error al validar el token", e)));
-    }
 }

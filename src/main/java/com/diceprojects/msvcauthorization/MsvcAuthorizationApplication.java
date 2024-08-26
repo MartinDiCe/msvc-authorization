@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * escaneo de componentes y otras configuraciones específicas de Spring.
  */
 @SpringBootApplication
-public class MsvcLoginApplication {
+public class MsvcAuthorizationApplication {
 
 	/**
 	 * Método principal para ejecutar la aplicación Spring Boot.
@@ -17,7 +17,7 @@ public class MsvcLoginApplication {
 	 * @param args Argumentos de la línea de comandos pasados al iniciar la aplicación.
 	 */
 	public static void main(String[] args) {
-		SpringApplication.run(MsvcLoginApplication.class, args);
+		SpringApplication.run(MsvcAuthorizationApplication.class, args);
 	}
 
 }

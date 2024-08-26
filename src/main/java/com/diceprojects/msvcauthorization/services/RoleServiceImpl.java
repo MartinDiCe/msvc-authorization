@@ -1,7 +1,9 @@
 package com.diceprojects.msvcauthorization.services;
 
 import com.diceprojects.msvcauthorization.exceptions.ErrorHandler;
+import com.diceprojects.msvcauthorization.persistences.models.dtos.CreateRoleDTO;
 import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
+import com.diceprojects.msvcauthorization.persistences.models.mappers.RoleMapper;
 import com.diceprojects.msvcauthorization.persistences.repositories.RoleRepository;
 import com.diceprojects.msvcauthorization.utils.EntityStatusService;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
     private final EntityStatusService entityStatusService;
+    private final RoleMapper roleMapper;
 
     /**
      * Constructor para inyectar las dependencias necesarias.
@@ -30,16 +33,14 @@ public class RoleServiceImpl implements RoleService {
      * @param roleRepository      el repositorio para gestionar roles.
      * @param entityStatusService el servicio para manejar el estado activo de las entidades.
      */
-    public RoleServiceImpl(RoleRepository roleRepository, EntityStatusService entityStatusService) {
+    public RoleServiceImpl(RoleRepository roleRepository, EntityStatusService entityStatusService, RoleMapper roleMapper) {
         this.roleRepository = roleRepository;
         this.entityStatusService = entityStatusService;
+        this.roleMapper = roleMapper;
     }
 
     /**
-     * Encuentra un rol por su nombre.
-     *
-     * @param roleName el nombre del rol a buscar.
-     * @return un {@link Mono} que emite el rol encontrado, o un error si no se encuentra ningún rol.
+     * {@inheritDoc}
      */
     @Override
     public Mono<Role> findByRoleName(String roleName) {
@@ -48,50 +49,37 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
-     * Encuentra un rol por su nombre o crea un nuevo rol si no existe.
-     *
-     * @param roleName    el nombre del rol a buscar o crear.
-     * @param description la descripción del rol a crear si no existe.
-     * @return un {@link Mono} que emite el rol encontrado o creado, o un error si la creación falla.
+     * {@inheritDoc}
      */
     @Override
     public Mono<Role> findOrCreateRole(String roleName, String description) {
         return findByRoleName(roleName)
+                .switchIfEmpty(
+                        createRole(new CreateRoleDTO(roleName, description))
+                )
                 .onErrorResume(e -> {
                     if (e instanceof ResponseStatusException && ((ResponseStatusException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
-                        return createRole(roleName, description);
+                        return createRole(new CreateRoleDTO(roleName, description));
                     }
                     return Mono.error(e);
                 });
     }
 
     /**
-     * Crea un nuevo rol.
-     *
-     * @param roleName    el nombre del rol a crear.
-     * @param description la descripción del rol a crear.
-     * @return un {@link Mono} que emite el rol creado, o un error si la creación falla.
+     * {@inheritDoc}
      */
-    public Mono<Role> createRole(String roleName, String description) {
+    @Override
+    public Mono<Role> createRole(CreateRoleDTO createRoleDTO) {
         return entityStatusService.obtenerEstadoActivo()
                 .flatMap(activeStatus -> {
-                    Role role = new Role();
-                    role.setRole(roleName);
-                    role.setDescription(description);
-                    role.setCreateDate(ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime());
-                    role.setDeleted(false);
-                    role.setStatus(activeStatus);
-
+                    Role role = roleMapper.mapToRole(createRoleDTO, activeStatus);
                     return roleRepository.save(role)
                             .doOnError(e -> ErrorHandler.handleError("Error creando el rol", e, HttpStatus.INTERNAL_SERVER_ERROR));
                 });
     }
 
     /**
-     * Encuentra roles por sus IDs.
-     *
-     * @param roleIds el conjunto de IDs de roles a buscar.
-     * @return un {@link Flux} que emite los roles encontrados, o un error si no se encuentran roles.
+     * {@inheritDoc}
      */
     @Override
     public Flux<Role> findRolesByIds(Set<String> roleIds) {
@@ -101,12 +89,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
-     * Actualiza un rol existente.
-     *
-     * @param roleId el ID del rol a actualizar.
-     * @param roleName el nuevo nombre del rol.
-     * @param description la nueva descripción del rol.
-     * @return un {@link Mono} que emite el rol actualizado.
+     * {@inheritDoc}
      */
     @Override
     public Mono<Role> updateRole(String roleId, String roleName, String description) {
@@ -122,11 +105,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
-     * Cambia el estado de un rol.
-     *
-     * @param roleId el ID del rol a actualizar.
-     * @param status el nuevo estado del rol (activo/inactivo).
-     * @return un {@link Mono} que emite el rol actualizado o un mensaje si el estado ya es el mismo.
+     * {@inheritDoc}
      */
     @Override
     public Mono<Object> changeRoleStatus(String roleId, String status) {
@@ -151,13 +130,23 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
-     * Lista todos los roles.
-     *
-     * @return un {@link Flux} que emite todos los roles.
+     * {@inheritDoc}
      */
     @Override
     public Flux<Role> listRoles() {
         return roleRepository.findAll()
                 .doOnError(e -> ErrorHandler.handleError("Error listando los roles", e, HttpStatus.INTERNAL_SERVER_ERROR));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Mono<Role> getDefaultUserRole() {
+        return roleRepository.findByRole("USER")
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Rol USER no encontrado")));
+    }
+
+
+
 }

@@ -2,6 +2,7 @@ package com.diceprojects.msvcauthorization.persistences.repositories;
 
 import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -18,6 +19,13 @@ public interface RoleRepository extends ReactiveMongoRepository<Role, String> {
      * @return un {@link Mono} que contiene el {@link Role} encontrado, o vacío si no se encuentra ninguno.
      */
     Mono<Role> findByRole(String role);
+
+    /**
+     * Busca un rol por su nombre, ignorando mayúsculas y minúsculas.
+     *
+     * @param roleName el nombre del rol a buscar, ignorando mayúsculas y minúsculas.
+     * @return un {@link Mono} que emite el rol encontrado, o vacío si no se encuentra ningún rol con ese nombre.
+     */
     Mono<Role> findByRoleIgnoreCase(String roleName);
 
 }
