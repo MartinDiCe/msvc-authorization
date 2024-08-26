@@ -12,28 +12,23 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class UserDetailsDTO {
+public class CreateUserDTO {
 
-    private String id;
     private String username;
     private String password;
-    private String status;
     private Set<RoleDTO> roles;
 
     /**
-     * Constructor que inicializa todos los campos del UserDetailsDTO.
+     * Constructor que inicializa todos los campos del CreateUserDTO.
      *
-     * @param id       El identificador único del usuario.
      * @param username El nombre de usuario.
      * @param password La contraseña del usuario.
-     * @param status   El estado actual del usuario.
      * @param roles    Los roles asociados al usuario.
      */
-    public UserDetailsDTO(String id, String username, String password, String status, Set<RoleDTO> roles) {
-        this.id = id;
+    public CreateUserDTO(String username, String password, Set<RoleDTO> roles) {
+
         this.username = username;
         this.password = password;
-        this.status = status;
         this.roles = roles;
     }
 

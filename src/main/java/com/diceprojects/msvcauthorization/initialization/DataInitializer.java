@@ -26,7 +26,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        createRoleIfNotFound("ADMIN", "Administrator role, full access")
+        createRoleIfNotFound("ADMIN", "Administrator role, full access").
+                then(createRoleIfNotFound("USER", "Standard user role, limited access"))
                 .flatMap(role -> createUserIfNotFound("admin", "password", role.getRole()))
                 .subscribe(
                         result -> System.out.println("Initialization completed successfully"),
@@ -43,7 +44,6 @@ public class DataInitializer implements CommandLineRunner {
      */
     private Mono<Role> createRoleIfNotFound(String roleName, String description) {
         return roleService.findOrCreateRole(roleName, description)
-                .doOnNext(role -> System.out.println("Role default created or found: " + role.getRole()))
                 .doOnError(e -> ErrorHandler.handleError("Error creating role", e, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
@@ -57,7 +57,6 @@ public class DataInitializer implements CommandLineRunner {
      */
     private Mono<CustomUserDetailsDTO> createUserIfNotFound(String username, String password, String roleName) {
         return userService.findOrCreateUser(username, password, roleName)
-                .doOnNext(userDetails -> System.out.println("User default created or found: " + userDetails.getUsername()))
                 .doOnError(e -> ErrorHandler.handleError("Error creating user default", e, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 }

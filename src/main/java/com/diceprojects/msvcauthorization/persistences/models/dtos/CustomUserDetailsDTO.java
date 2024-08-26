@@ -39,39 +39,4 @@ public class CustomUserDetailsDTO {
         this.roles = roles;
     }
 
-    /**
-     * Verifica si la cuenta del usuario no ha expirado.
-     *
-     * @return siempre devuelve true, indicando que la cuenta no ha expirado.
-     */
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    /**
-     * Verifica si la cuenta del usuario no está bloqueada.
-     *
-     * @return siempre devuelve true, indicando que la cuenta no está bloqueada.
-     */
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    /**
-     * Verifica si las credenciales del usuario no han expirado.
-     *
-     * @return siempre devuelve true, indicando que las credenciales no han expirado.
-     */
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    /**
-     * Verifica si la cuenta del usuario está habilitada.
-     *
-     * @return true si el estado del usuario es "Active", false en caso contrario.
-     */
-    public boolean isEnabled() {
-        return "Active".equalsIgnoreCase(status);
-    }
 }

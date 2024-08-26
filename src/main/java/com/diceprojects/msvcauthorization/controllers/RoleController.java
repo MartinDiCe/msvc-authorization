@@ -1,5 +1,6 @@
 package com.diceprojects.msvcauthorization.controllers;
 
+import com.diceprojects.msvcauthorization.persistences.models.dtos.CreateRoleDTO;
 import com.diceprojects.msvcauthorization.persistences.models.entities.Role;
 import com.diceprojects.msvcauthorization.services.RoleService;
 import org.springframework.http.HttpStatus;
@@ -32,16 +33,15 @@ public class RoleController {
     }
 
     /**
-     * Crea un nuevo rol.
+     * Crea un nuevo rol en el sistema.
      *
-     * @param roleName    el nombre del rol a crear
-     * @param description la descripción del rol (opcional)
-     * @return un {@link Mono} que emite el rol creado
+     * @param createRoleDTO el DTO que contiene la información del rol a crear.
+     * @return un {@link Mono} que emite el rol creado.
      */
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Role> create(@RequestParam String roleName, @RequestParam(required = false, defaultValue = "") String description) {
-        return roleService.createRole(roleName, description);
+    public Mono<Role> create(@RequestBody CreateRoleDTO createRoleDTO) {
+        return roleService.createRole(createRoleDTO);
     }
 
     /**
@@ -77,6 +77,17 @@ public class RoleController {
     @GetMapping("/listRoles")
     public Flux<Role> listRoles() {
         return roleService.listRoles();
+    }
+
+    /**
+     * Obtiene el rol por defecto para los usuarios.
+     *
+     * @return un {@link Mono} que emite el rol por defecto si existe, de lo contrario, emite un error 404.
+     */
+    @GetMapping("/default")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Role> getDefaultUserRole() {
+        return roleService.getDefaultUserRole();
     }
 
 }
